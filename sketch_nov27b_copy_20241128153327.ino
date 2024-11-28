@@ -51,12 +51,17 @@ volatile int longBreakInterval = 4;
 volatile int longBreakTimer = 900;
 
 void loop() {
+  /*
   tcaselect(2); // Text to Oled display 1
   oled.begin();
   oled.clearDisplay();
   oled.setTextColor(WHITE);
   oled.setCursor(0,0);
   oled.setTextSize(3.5);
+  */
+
+  selectDisplay(2);
+
   if(studyTimer == -1){
     oled.print("0:00");
   }
@@ -73,12 +78,7 @@ void loop() {
   oled.display();
 
   //Break timer
-  tcaselect(3);
-  oled.begin();
-  oled.clearDisplay();
-  oled.setTextColor(WHITE);
-  oled.setCursor(0,0);
-  oled.setTextSize(3.5);
+  selectDisplay(3);
   if(smallBreakTimer == -1){
     oled.print("0:00");
   }
@@ -93,12 +93,7 @@ void loop() {
   oled.display();
 
   //Long Break timer
-  tcaselect(4);
-  oled.begin();
-  oled.clearDisplay();
-  oled.setTextColor(WHITE);
-  oled.setCursor(0,0);
-  oled.setTextSize(3.5);
+  selectDisplay(4);
   if(smallBreakTimer == -1){
     oled.print("0:00");
   }
@@ -127,4 +122,13 @@ void blink() {
   state = !state;
   digitalWrite(ledPin, state);
   studyTimer++;
+}
+
+void selectDisplay(int display) {
+  tcaselect(display);
+  oled.begin();
+  oled.clearDisplay();
+  oled.setTextColor(WHITE);
+  oled.setCursor(0,0);
+  oled.setTextSize(3.5);
 }
