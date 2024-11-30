@@ -16,6 +16,12 @@ Adafruit_SSD1306 oled(1);
 // buzzer pins
 const int buzzerPin = 8;
 
+// button pins
+const int menuButtonPin = 2;
+const int startStopButtonPin = 3;
+const int incButtonPin = 10;
+const int decButtonPin = 11;
+
 // led pins
 const int redLedPin = 7;
 const int greenLedPin = 6;
@@ -23,31 +29,44 @@ const int yellowLedPin = 5;
 
 // Adjustable by user
 volatile int study = 30;
-volatile int smallBreak = 30;
+volatile int shortBreak = 30;
 volatile int longBreak = 30;
 volatile int interval = 4;
 
 // subtracted from and reset
 int studyTimer = study;
-int smallBreakTimer = smallBreak;
+int shortBreakTimer = shortBreak;
 int longBreakTimer = longBreak;
-
 
 // used to determine if long break is next
 int longBreakInterval = 0;
 
 // number of times each timer had run
 int studyCounter = 0;
-int smallBreakCounter = 0;
+int shortBreakCounter = 0;
 int longBreakCounter = 0;
 
-// study = 0, break = 1, long break = 2
-int timer = 0;
+// menu (default) = -1, study = 0, break = 1, long break = 2
+int timer = -1;
+
+// welcome (default) = -1, study = 0, break = 1, long break = 3
+int menu = -1;
 
 // setup - runs once
 void setup() {
   // print to serial monitor
   Serial.begin(9600);
+
+  // interrupt button setup
+  pinMode(menuButtonPin, INPUT);
+  pinMode(startStopButtonPin, INPUT);
+
+  attachInterrupt(digitalPinToInterrupt(menuButtonPin), changeMenuItem, FALLING);
+  attachInterrupt(digitalPinToInterrupt(startStopButtonPin), startStopTimers, FALLING);
+
+  // inc. dec. button setup
+  pinMode(incButtonPin, INPUT);
+  pinMode(decButtonPin, INPUT);
 
   // led setup
   pinMode(redLedPin, OUTPUT);
@@ -77,8 +96,18 @@ void setup() {
   selectDisplay(5, 0, 0, 3.5);
   oled.display();
 
-  // displays timer counter and total times
+  //Clear display 5
+  selectDisplay(6, 0, 0, 3.5);
+  oled.display();
+
   displaySessionStats();
+
+  selectDisplay(6, 0, 0, 1.5);
+  oled.println("  Study   : " + String(study / 60) + ":" + String(study % 60));
+  oled.println("  Short   : " + String(shortBreak / 60) + ":" + String(shortBreak % 60));
+  oled.println("  Long    : " + String(longBreak / 60) + ":" + String(longBreak % 60));
+  oled.println("  Interval: " + String(interval));
+  oled.display();
 }
 
 bool iOnlyWantThisToPrintOnce = true;
@@ -88,23 +117,28 @@ void loop() {
   switch(timer) {
     // Study Timer case
     case 0:
+      /*
       if (iOnlyWantThisToPrintOnce) {
         Serial.println("Start Session: " + String(studyCounter % 4) + " - " + String(millis()));
         iOnlyWantThisToPrintOnce = false;
       }
+      */
       //Serial.println("Start (Study Timer): " + String(millis()));
       //Serial.println("Should end (Study Timer): " + String(millis() + (study * 1000)));
+
       // ring buzzer :)
       ringBuzzer();
 
       while (studyTimer >= 0) {
+        // stop timer, return to case
+        if (timer == -1) {
+          break;
+        }
         // display 1
         selectDisplay(2, 0, 0, 3.5);
 
         // print time
-        oled.print(studyTimer / 60);
-        oled.print(":");
-        oled.println(studyTimer % 60);
+        displayTimer(studyTimer);
 
         // actually show something on screen
         oled.display();
@@ -117,6 +151,11 @@ void loop() {
 
         // update studyTimer
         studyTimer--;
+      }
+
+      // stop timer, return to menu
+      if (timer == -1) {
+          break;
       }
 
       // update longBreakInterval counter
@@ -151,19 +190,25 @@ void loop() {
     // Short Break Timer case
     case 1:
       //Serial.println("Start (Short Break Timer): " + String(millis()));
-      //Serial.println("Should end (Short Break Timer): " + String(millis() + (smallBreak * 1000)));
+      //Serial.println("Should end (Short Break Timer): " + String(millis() + (shortBreak * 1000)));
+
+      // set time
+      shortBreakTimer = shortBreak;
 
       // ring buzzer :)
       ringBuzzer();
 
-      while (smallBreakTimer >= 0) {
+      while (shortBreakTimer >= 0) {
+        // stop timer, return to case
+        if (timer == -1) {
+          break;
+        }
+
         // display 2
         selectDisplay(3, 0, 0, 3.5);
 
         // print time
-        oled.print(smallBreakTimer/60);
-        oled.print(":");
-        oled.println(smallBreakTimer%60);
+        displayTimer(shortBreakTimer);
 
         // actually show something on screen
         oled.display();
@@ -174,8 +219,13 @@ void loop() {
         // Delay to match 1 second
         delay(739);
 
-        // update smallBreakTimer
-        smallBreakTimer--;
+        // update shortBreakTimer
+        shortBreakTimer--;
+      }
+
+      // stop timer, return to case
+      if (timer == -1) {
+        break;
       }
     
       // set timer value for next studyTimer
@@ -183,10 +233,10 @@ void loop() {
       Serial.println("Switching to Study Timer");
 
       // reset timer for next time
-      smallBreakTimer = smallBreak;
+      shortBreakTimer = shortBreak;
 
       // update counter for calculations
-      smallBreakCounter++;
+      shortBreakCounter++;
 
       // displays timer counter and total times
       displaySessionStats();
@@ -203,17 +253,23 @@ void loop() {
       //Serial.println("Start (Long Break Timer): " + String(millis()));
       //Serial.println("Should end (Long Break Timer): " + String(millis() + (longBreak * 1000)));
 
+      // set time
+      longBreakTimer = longBreak;
+
       // ring buzzer :)
       ringBuzzer();
 
       while (longBreakTimer >= 0) {
+        // stop timer, return to case
+        if (timer == -1) {
+          break;
+        }
+
         // display 3
         selectDisplay(4, 0, 0, 3.5);
 
         // print time
-        oled.print(longBreakTimer/60);
-        oled.print(":");
-        oled.println(longBreakTimer%60);
+        displayTimer(longBreakTimer);
 
         // actually show something on screen
         oled.display();
@@ -226,6 +282,11 @@ void loop() {
 
         // update longBreakTimer
         longBreakTimer--;
+      }
+
+      // stop timer, return to case
+      if (timer == -1) {
+        break;
       }
     
       // set timer value for next studyTimer
@@ -256,9 +317,88 @@ void loop() {
       break;
 
     default:
-      // Menu Code goes here
-      // Choose timer to adjust
-      // Start Timer
+      switch(menu) {
+        case 0:
+          selectDisplay(6, 0, 0, 1.5);
+          oled.println("* Study   : " + String(study / 60) + ":" + String(study % 60));
+          oled.println("  Short   : " + String(shortBreak / 60) + ":" + String(shortBreak % 60));
+          oled.println("  Long    : " + String(longBreak / 60) + ":" + String(longBreak % 60));
+          oled.println("  Interval: " + String(interval));
+          oled.display();
+
+          if (digitalRead(incButtonPin) == HIGH && study < 3600) {
+            study = study + 60;
+          }
+
+          if (digitalRead(decButtonPin) == HIGH && study > 0) {
+            study = study - 60;
+          }
+          
+          // update timer 
+          studyTimer = study;
+
+          break;
+        case 1:
+          selectDisplay(6, 0, 0, 1.5);
+          oled.println("  Study   : " + String(study / 60) + ":" + String(study % 60));
+          oled.println("* Short   : " + String(shortBreak / 60) + ":" + String(shortBreak % 60));
+          oled.println("  Long    : " + String(longBreak / 60) + ":" + String(longBreak % 60));
+          oled.println("  Interval: " + String(interval));
+          oled.display();
+
+          if (digitalRead(incButtonPin) == HIGH && shortBreak < 3600) {
+            shortBreak = shortBreak + 60;
+          }
+
+          if (digitalRead(decButtonPin) == HIGH && shortBreak > 0) {
+            shortBreak = shortBreak - 60;
+          }
+
+          // update timer 
+          shortBreakTimer = shortBreak;
+
+          break;
+        case 2:
+          selectDisplay(6, 0, 0, 1.5);
+          oled.println("  Study   : " + String(study / 60) + ":" + String(study % 60));
+          oled.println("  Short   : " + String(shortBreak / 60) + ":" + String(shortBreak % 60));
+          oled.println("* Long    : " + String(longBreak / 60) + ":" + String(longBreak % 60));
+          oled.println("  Interval: " + String(interval));
+          oled.display();
+
+          if (digitalRead(incButtonPin) == HIGH && longBreak < 3600) {
+            longBreak = longBreak + 60;
+          }
+
+          if (digitalRead(decButtonPin) == HIGH && longBreak > 0) {
+            longBreak = longBreak - 60;
+          }
+
+          // update timer 
+          longBreakTimer = longBreak;
+
+          break;
+        case 3:
+          selectDisplay(6, 0, 0, 1.5);
+          oled.println("  Study   : " + String(study / 60) + ":" + String(study % 60));
+          oled.println("  Short   : " + String(shortBreak / 60) + ":" + String(shortBreak % 60));
+          oled.println("  Long    : " + String(longBreak / 60) + ":" + String(longBreak % 60));
+          oled.println("* Interval: " + String(interval));
+          oled.display();
+
+          // update interval
+          if (digitalRead(incButtonPin) == HIGH) {
+            interval++;
+          }
+
+          if (digitalRead(decButtonPin) == HIGH && interval > 0) {
+            interval--;
+          }
+
+          break;
+        default:
+          break;
+      }
       break;
   }
 }
@@ -287,13 +427,17 @@ void displaySessionStats() {
   selectDisplay(5, 0, 0, 1.5);
   
   String studyTotalTime = calculateTotalTime(study, studyCounter);
-  String smallTotalTime = calculateTotalTime(smallBreak, smallBreakCounter);
+  String shortTotalTime = calculateTotalTime(shortBreak, shortBreakCounter);
   String longTotalTime = calculateTotalTime(longBreak, longBreakCounter);
+  int totalTimeX = study * studyCounter;
+  int totalTimeY = shortBreak * shortBreakCounter;
+  int totalTimeZ = longBreak * longBreakCounter;
+  String totalTime = calculateTotalTime((totalTimeX + totalTimeY + totalTimeZ), 1);
 
-  oled.println("Study: " + String(studyCounter) + " - " + studyTotalTime);
-  oled.println("Short: " + String(smallBreakCounter) + " - " + smallTotalTime);
-  oled.println("Long: " + String(longBreakCounter) + " - " + longTotalTime);
-  oled.println("Interval: " + String(longBreakInterval));
+  oled.println("Study   : " + String(studyCounter) + " - " + studyTotalTime);
+  oled.println("Short   : " + String(shortBreakCounter) + " - " + shortTotalTime);
+  oled.println("Long    : " + String(longBreakCounter) + " - " + longTotalTime);
+  oled.println("Interval: " + String(longBreakInterval) + " - " + totalTime);
 
   oled.display();
 }
@@ -315,4 +459,49 @@ void ringBuzzer() {
 
   // Stop sound     
   noTone(buzzerPin);
+}
+
+// Changes menu item
+// Fix debounce problem
+void changeMenuItem() {
+  ringBuzzer();
+  menu = (menu + 1) % 4;
+}
+
+// Starts timer or stops timer (goes to menu)
+void startStopTimers() {
+  ringBuzzer();
+
+  if (timer == -1) {
+    timer = 0;
+  }
+  else {
+    timer = -1;
+  }
+
+  // reset leds
+  digitalWrite(redLedPin, LOW);
+  digitalWrite(yellowLedPin, LOW);
+  digitalWrite(greenLedPin, LOW);
+}
+
+void displayTimer(int timerType) {
+  int min = timerType / 60;
+  int sec = timerType % 60;
+
+  if (min >= 10 && min <= 99) {
+    oled.print(String(min));
+  }
+  else {
+    oled.print("0" + String(min));
+  }
+  
+  oled.print(":");
+  
+  if (sec >= 10 && sec <= 99) {
+    oled.print(String(sec));
+  }
+  else {
+    oled.print("0" + String(sec));
+  }
 }
