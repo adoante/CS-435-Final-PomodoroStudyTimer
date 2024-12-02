@@ -367,6 +367,7 @@ void loop() {
       displayMenu();
 
       switch(menu) {
+        // Study
         case 0:
           // check if button input is valid
           incButtonCurrPress = millis();
@@ -396,6 +397,7 @@ void loop() {
           studyTimer = study;
 
           break;
+        // Short Break
         case 1:
           // check if button input is valid
           incButtonCurrPress = millis();
@@ -425,6 +427,7 @@ void loop() {
           shortBreakTimer = shortBreak;
 
           break;
+        // Long Break
         case 2:
           // check if button input is valid
           incButtonCurrPress = millis();
@@ -454,6 +457,7 @@ void loop() {
           longBreakTimer = longBreak;
 
           break;
+        // Interval
         case 3:
           // check if button input is valid
           incButtonCurrPress = millis();
