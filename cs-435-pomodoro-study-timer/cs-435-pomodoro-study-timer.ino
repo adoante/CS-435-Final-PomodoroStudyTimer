@@ -122,7 +122,17 @@ void setup() {
   oled.println("StudyTimer");
   oled.display();
 
-  selectDisplay(3, 0, 0, 2);
+  selectDisplay(3, 0, 0, 1.5);
+  oled.println("Menu is active");
+  oled.println("when timer is off.");
+  oled.display();
+
+  selectDisplay(4, 0, 0, 1.5);
+  oled.println("Embedded Systems");
+  oled.println("Project for CS435");
+  oled.println("By Adolfo Gante &");
+  oled.println("Justin Janovskis");
+  oled.display();
 
   displaySessionStats();
 
