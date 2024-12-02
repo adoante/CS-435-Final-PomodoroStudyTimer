@@ -1,15 +1,15 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-#define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
+// Reset pin # (or -1 if sharing Arduino reset pin), required to be set
+#define OLED_RESET     -1
 #define OLED_Address 0x3C
 Adafruit_SSD1306 oled(1);
 #include "Wire.h"
 #define TCAADDR 0x70
-#define SCREEN_WIDTH 128 // OLED display width, in pixels
-#define SCREEN_HEIGHT 64 // OLED display height, in pixels
-
-#define LOGO_HEIGHT   16
-#define LOGO_WIDTH    16
+// OLED display width, in pixels
+#define SCREEN_WIDTH 128
+// OLED display height, in pixels
+#define SCREEN_HEIGHT 64
 
 // Variables
 
@@ -22,15 +22,30 @@ const int startStopButtonPin = 3;
 const int incButtonPin = 10;
 const int decButtonPin = 11;
 
+// button anti-debounce variables
+// millies() returned unsinged long
+unsigned long menuButtonPrevPress = 0;
+unsigned long startStopButtonPrevPress = 0;
+unsigned long incButtonPrevPress = 0;
+unsigned long decButtonPrevPress = 0;
+
+unsigned long menuButtonCurrPress = 0;
+unsigned long startStopButtonCurrPress = 0;
+unsigned long incButtonCurrPress = 0;
+unsigned long decButtonCurrPress = 0;
+
+// button delay between presses, milliseconds
+unsigned long debounceDelay = 50;
+
 // led pins
 const int redLedPin = 7;
 const int greenLedPin = 6;
 const int yellowLedPin = 5;
 
 // Adjustable by user
-volatile int study = 30;
-volatile int shortBreak = 30;
-volatile int longBreak = 30;
+volatile int study = 60;
+volatile int shortBreak = 60;
+volatile int longBreak = 60;
 volatile int interval = 4;
 
 // subtracted from and reset
@@ -47,10 +62,10 @@ int shortBreakCounter = 0;
 int longBreakCounter = 0;
 
 // menu (default) = -1, study = 0, break = 1, long break = 2
-int timer = -1;
+volatile int timer = -1;
 
 // welcome (default) = -1, study = 0, break = 1, long break = 3
-int menu = -1;
+volatile int menu = -1;
 
 // setup - runs once
 void setup() {
@@ -100,14 +115,18 @@ void setup() {
   selectDisplay(6, 0, 0, 3.5);
   oled.display();
 
+  // Start Screens
+
+  selectDisplay(2, 14, 0, 2);
+  oled.println("Pomodoro");
+  oled.println("StudyTimer");
+  oled.display();
+
+  selectDisplay(3, 0, 0, 2);
+
   displaySessionStats();
 
-  selectDisplay(6, 0, 0, 1.5);
-  oled.println("  Study   : " + String(study / 60) + ":" + String(study % 60));
-  oled.println("  Short   : " + String(shortBreak / 60) + ":" + String(shortBreak % 60));
-  oled.println("  Long    : " + String(longBreak / 60) + ":" + String(longBreak % 60));
-  oled.println("  Interval: " + String(interval));
-  oled.display();
+  displayMenu();
 }
 
 bool iOnlyWantThisToPrintOnce = true;
@@ -117,14 +136,16 @@ void loop() {
   switch(timer) {
     // Study Timer case
     case 0:
-      /*
-      if (iOnlyWantThisToPrintOnce) {
-        Serial.println("Start Session: " + String(studyCounter % 4) + " - " + String(millis()));
-        iOnlyWantThisToPrintOnce = false;
-      }
-      */
-      //Serial.println("Start (Study Timer): " + String(millis()));
-      //Serial.println("Should end (Study Timer): " + String(millis() + (study * 1000)));
+      
+      //Clear display 2
+      selectDisplay(3, 0, 0, 3.5);
+      oled.println("Study");
+      oled.display();
+
+      //Clear display 3
+      selectDisplay(4, 0, 0, 3.5);
+      oled.println("Time!");
+      oled.display();
 
       // ring buzzer :)
       ringBuzzer();
@@ -189,8 +210,15 @@ void loop() {
 
     // Short Break Timer case
     case 1:
-      //Serial.println("Start (Short Break Timer): " + String(millis()));
-      //Serial.println("Should end (Short Break Timer): " + String(millis() + (shortBreak * 1000)));
+      //Clear display 1
+      selectDisplay(2, 0, 0, 3.5);
+      oled.println("Break");
+      oled.display();
+
+      //Clear display 3
+      selectDisplay(4, 0, 0, 3.5);
+      oled.println("Time!");
+      oled.display();
 
       // set time
       shortBreakTimer = shortBreak;
@@ -250,8 +278,17 @@ void loop() {
 
     // Long Break Timer
     case 2:
-      //Serial.println("Start (Long Break Timer): " + String(millis()));
-      //Serial.println("Should end (Long Break Timer): " + String(millis() + (longBreak * 1000)));
+      //Clear display 1
+      selectDisplay(2, 0, 0, 1.5);
+      oled.println("Long");
+      oled.setTextSize(3.5);
+      oled.println("Break");
+      oled.display();
+
+      //Clear display 2
+      selectDisplay(3, 0, 0, 3.5);
+      oled.println("Time!");
+      oled.display();
 
       // set time
       longBreakTimer = longBreak;
@@ -284,7 +321,7 @@ void loop() {
         longBreakTimer--;
       }
 
-      // stop timer, return to case
+      // stop timer, return to menu
       if (timer == -1) {
         break;
       }
@@ -317,41 +354,61 @@ void loop() {
       break;
 
     default:
+      displayMenu();
+
       switch(menu) {
         case 0:
-          selectDisplay(6, 0, 0, 1.5);
-          oled.println("* Study   : " + String(study / 60) + ":" + String(study % 60));
-          oled.println("  Short   : " + String(shortBreak / 60) + ":" + String(shortBreak % 60));
-          oled.println("  Long    : " + String(longBreak / 60) + ":" + String(longBreak % 60));
-          oled.println("  Interval: " + String(interval));
-          oled.display();
+          // check if button input is valid
+          incButtonCurrPress = millis();
 
-          if (digitalRead(incButtonPin) == HIGH && study < 3600) {
-            study = study + 60;
+          // current button press must be 'debounceDelay' ms after previous button press
+          if (incButtonCurrPress - incButtonPrevPress > debounceDelay) {
+            if (digitalRead(incButtonPin) == HIGH && study < 3600) {
+              study = study + 60;
+            }
+
+            incButtonPrevPress = incButtonCurrPress;
           }
 
-          if (digitalRead(decButtonPin) == HIGH && study > 0) {
-            study = study - 60;
+          // check if button input is valid
+          decButtonCurrPress = millis();
+
+          // current button press must be 'debounceDelay' ms after previous button press
+          if (decButtonCurrPress - decButtonPrevPress > debounceDelay) {
+            if (digitalRead(decButtonPin) == HIGH && study > 0) {
+              study = study - 60;
+            }
+
+            decButtonPrevPress = decButtonCurrPress;
           }
-          
+
           // update timer 
           studyTimer = study;
 
           break;
         case 1:
-          selectDisplay(6, 0, 0, 1.5);
-          oled.println("  Study   : " + String(study / 60) + ":" + String(study % 60));
-          oled.println("* Short   : " + String(shortBreak / 60) + ":" + String(shortBreak % 60));
-          oled.println("  Long    : " + String(longBreak / 60) + ":" + String(longBreak % 60));
-          oled.println("  Interval: " + String(interval));
-          oled.display();
+          // check if button input is valid
+          incButtonCurrPress = millis();
 
-          if (digitalRead(incButtonPin) == HIGH && shortBreak < 3600) {
-            shortBreak = shortBreak + 60;
+          // current button press must be 'debounceDelay' ms after previous button press
+          if (incButtonCurrPress - incButtonPrevPress > debounceDelay) {
+            if (digitalRead(incButtonPin) == HIGH && shortBreak < 3600) {
+              shortBreak = shortBreak + 60;
+            }
+
+            incButtonPrevPress = incButtonCurrPress;
           }
 
-          if (digitalRead(decButtonPin) == HIGH && shortBreak > 0) {
-            shortBreak = shortBreak - 60;
+          // check if button input is valid
+          decButtonCurrPress = millis();
+
+          // current button press must be 'debounceDelay' ms after previous button press
+          if (decButtonCurrPress - decButtonPrevPress > debounceDelay) {
+            if (digitalRead(decButtonPin) == HIGH && shortBreak > 0) {
+              shortBreak = shortBreak - 60;
+            }
+
+            decButtonPrevPress = decButtonCurrPress;
           }
 
           // update timer 
@@ -359,19 +416,28 @@ void loop() {
 
           break;
         case 2:
-          selectDisplay(6, 0, 0, 1.5);
-          oled.println("  Study   : " + String(study / 60) + ":" + String(study % 60));
-          oled.println("  Short   : " + String(shortBreak / 60) + ":" + String(shortBreak % 60));
-          oled.println("* Long    : " + String(longBreak / 60) + ":" + String(longBreak % 60));
-          oled.println("  Interval: " + String(interval));
-          oled.display();
+          // check if button input is valid
+          incButtonCurrPress = millis();
 
-          if (digitalRead(incButtonPin) == HIGH && longBreak < 3600) {
-            longBreak = longBreak + 60;
+          // current button press must be 'debounceDelay' ms after previous button press
+          if (incButtonCurrPress - incButtonPrevPress > debounceDelay) {
+            if (digitalRead(incButtonPin) == HIGH && longBreak < 3600) {
+              longBreak = longBreak + 60;
+            }
+
+            incButtonPrevPress = incButtonCurrPress;
           }
 
-          if (digitalRead(decButtonPin) == HIGH && longBreak > 0) {
-            longBreak = longBreak - 60;
+          // check if button input is valid
+          decButtonCurrPress = millis();
+
+          // current button press must be 'debounceDelay' ms after previous button press
+          if (decButtonCurrPress - decButtonPrevPress > debounceDelay) {
+            if (digitalRead(decButtonPin) == HIGH && longBreak > 0) {
+              longBreak = longBreak - 60;
+            }
+
+            decButtonPrevPress = decButtonCurrPress;
           }
 
           // update timer 
@@ -379,24 +445,34 @@ void loop() {
 
           break;
         case 3:
-          selectDisplay(6, 0, 0, 1.5);
-          oled.println("  Study   : " + String(study / 60) + ":" + String(study % 60));
-          oled.println("  Short   : " + String(shortBreak / 60) + ":" + String(shortBreak % 60));
-          oled.println("  Long    : " + String(longBreak / 60) + ":" + String(longBreak % 60));
-          oled.println("* Interval: " + String(interval));
-          oled.display();
+          // check if button input is valid
+          incButtonCurrPress = millis();
 
-          // update interval
-          if (digitalRead(incButtonPin) == HIGH) {
-            interval++;
+          // current button press must be 'debounceDelay' ms after previous button press
+          if (incButtonCurrPress - incButtonPrevPress > debounceDelay) {
+            // update interval
+            if (digitalRead(incButtonPin) == HIGH) {
+              interval++;
+            }
+
+            incButtonPrevPress = incButtonCurrPress;
           }
 
-          if (digitalRead(decButtonPin) == HIGH && interval > 0) {
-            interval--;
-          }
+          // check if button input is valid
+          decButtonCurrPress = millis();
 
+          // current button press must be 'debounceDelay' ms after previous button press
+          if (decButtonCurrPress - decButtonPrevPress > debounceDelay) {
+            // update interval
+            if (digitalRead(decButtonPin) == HIGH && interval > 0) {
+              interval--;
+            }
+            
+            decButtonPrevPress = decButtonCurrPress;
+          }
           break;
         default:
+          
           break;
       }
       break;
@@ -451,7 +527,7 @@ String calculateTotalTime(int time, int timeCounter) {
 }
 
 void ringBuzzer() {
-   // Send 1KHz sound signal
+  // Send 1KHz sound signal
   tone(buzzerPin, 1000);
 
   // ring for 
@@ -464,25 +540,36 @@ void ringBuzzer() {
 // Changes menu item
 // Fix debounce problem
 void changeMenuItem() {
-  ringBuzzer();
-  menu = (menu + 1) % 4;
+  // check if button input is valid
+  menuButtonCurrPress = millis();
+
+  // current button press must be 'debounceDelay' ms after previous button press
+  if (menuButtonCurrPress - menuButtonPrevPress > debounceDelay) {
+    menu = (menu + 1) % 4;
+    menuButtonPrevPress = menuButtonCurrPress;
+  }
 }
 
 // Starts timer or stops timer (goes to menu)
 void startStopTimers() {
-  ringBuzzer();
+  // check if button input is valid
+  startStopButtonCurrPress = millis();
 
-  if (timer == -1) {
-    timer = 0;
-  }
-  else {
-    timer = -1;
-  }
+  // current button press must be 'debounceDelay' ms after previous button press
+  if (startStopButtonCurrPress - startStopButtonPrevPress > debounceDelay) {
 
-  // reset leds
-  digitalWrite(redLedPin, LOW);
-  digitalWrite(yellowLedPin, LOW);
-  digitalWrite(greenLedPin, LOW);
+    if (timer == -1) {
+      timer = 0;
+    }
+    else {
+      timer = -1;
+    }
+
+    // reset leds
+    digitalWrite(redLedPin, LOW);
+    digitalWrite(yellowLedPin, LOW);
+    digitalWrite(greenLedPin, LOW);
+  }
 }
 
 void displayTimer(int timerType) {
@@ -503,5 +590,106 @@ void displayTimer(int timerType) {
   }
   else {
     oled.print("0" + String(sec));
+  }
+}
+
+void displayMenu() {
+
+  selectDisplay(6, 0, 0, 1.5);
+  
+  switch (menu) {
+    // study option
+    case 0:
+      oled.print("* Study   : ");
+      displayTimer(study);
+      oled.println();
+
+      oled.print("  Short   : ");
+      displayTimer(shortBreak);
+      oled.println();
+
+      oled.print("  Long    : ");
+      displayTimer(longBreak);
+      oled.println();
+
+      oled.print("  Interval: " + String(interval));
+
+      oled.display();
+      break;
+
+    // short break option
+    case 1:
+      oled.print("  Study   : ");
+      displayTimer(study);
+      oled.println();
+
+      oled.print("* Short   : ");
+      displayTimer(shortBreak);
+      oled.println();
+
+      oled.print("  Long    : ");
+      displayTimer(longBreak);
+      oled.println();
+
+      oled.print("  Interval: " + String(interval));
+
+      oled.display();
+      break;
+    
+    // long break option
+    case 2:
+      oled.print("  Study   : ");
+      displayTimer(study);
+      oled.println();
+
+      oled.print("  Short   : ");
+      displayTimer(shortBreak);
+      oled.println();
+
+      oled.print("* Long    : ");
+      displayTimer(longBreak);
+      oled.println();
+
+      oled.print("  Interval: " + String(interval));
+
+      oled.display();
+      break;
+
+    // interval option
+    case 3:
+      oled.print("  Study   : ");
+      displayTimer(study);
+      oled.println();
+
+      oled.print("  Short   : ");
+      displayTimer(shortBreak);
+      oled.println();
+
+      oled.print("  Long    : ");
+      displayTimer(longBreak);
+      oled.println();
+
+      oled.print("* Interval: " + String(interval));
+
+      oled.display();
+      break;
+
+    default:
+      oled.print("  Study   : ");
+      displayTimer(study);
+      oled.println();
+
+      oled.print("  Short   : ");
+      displayTimer(shortBreak);
+      oled.println();
+
+      oled.print("  Long    : ");
+      displayTimer(longBreak);
+      oled.println();
+
+      oled.print("  Interval: " + String(interval));
+
+      oled.display();
+      break;
   }
 }
