@@ -1,10 +1,12 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include "Wire.h"
+
 // Reset pin # (or -1 if sharing Arduino reset pin), required to be set
 #define OLED_RESET     -1
 #define OLED_Address 0x3C
-Adafruit_SSD1306 oled(1);
-#include "Wire.h"
+
+// Multiplexer address
 #define TCAADDR 0x70
 // OLED display width, in pixels
 #define SCREEN_WIDTH 128
@@ -12,6 +14,9 @@ Adafruit_SSD1306 oled(1);
 #define SCREEN_HEIGHT 64
 
 // Variables
+
+// display name
+Adafruit_SSD1306 oled(1);
 
 // buzzer pins
 const int buzzerPin = 8;
@@ -35,7 +40,7 @@ unsigned long incButtonCurrPress = 0;
 unsigned long decButtonCurrPress = 0;
 
 // button delay between presses, milliseconds
-unsigned long debounceDelay = 50;
+unsigned long debounceDelay = 25;
 
 // led pins
 const int redLedPin = 7;
@@ -139,8 +144,6 @@ void setup() {
   displayMenu();
 }
 
-bool iOnlyWantThisToPrintOnce = true;
-
 // loops forever
 void loop() {
   switch(timer) {
@@ -194,11 +197,9 @@ void loop() {
 
       // set timer value for next break type (either short break or long break)
       if (longBreakInterval == interval) {
-        Serial.println("Switching to Long Break Timer");
         timer = 2;
       }
       else {
-        Serial.println("Switching to Short Break Timer");
         timer = 1;
       }
 
@@ -213,8 +214,6 @@ void loop() {
 
       // turn off red led
       digitalWrite(redLedPin, LOW);
-
-      //Serial.println("End Case (Study Timer): " + String(millis()));
 
       break;
 
@@ -268,7 +267,6 @@ void loop() {
     
       // set timer value for next studyTimer
       timer = 0;
-      Serial.println("Switching to Study Timer");
 
       // reset timer for next time
       shortBreakTimer = shortBreak;
@@ -281,8 +279,6 @@ void loop() {
 
       // turn off green led
       digitalWrite(greenLedPin, LOW);
-
-      //Serial.println("End Case (Short Break Timer): " + String(millis()));
 
       break;
 
@@ -338,7 +334,6 @@ void loop() {
     
       // set timer value for next studyTimer
       timer = 0;
-      Serial.println("Switching to Study Timer");
 
       // reset timer
       longBreakTimer = longBreak;
@@ -352,137 +347,93 @@ void loop() {
       // displays timer counter and total times
       displaySessionStats();
 
-      // Delay to match 1 second
-      delay(10);
-
       // turn off yellow led
       digitalWrite(yellowLedPin, LOW);
 
-      Serial.println("Session Done: " + String(millis()));
-      iOnlyWantThisToPrintOnce = true;
-
       break;
 
+    // Always displays menu when timers are not active
     default:
       displayMenu();
 
       switch(menu) {
+        // Update study time
         case 0:
-          // check if button input is valid
-          incButtonCurrPress = millis();
-
-          // current button press must be 'debounceDelay' ms after previous button press
-          if (incButtonCurrPress - incButtonPrevPress > debounceDelay) {
-            if (digitalRead(incButtonPin) == HIGH && study < 3600) {
+          // Increment or decrement initial study timer values
+          if (digitalRead(incButtonPin) == HIGH) {
+            if (isValidPress(incButtonCurrPress, incButtonPrevPress) && study < 3600) {
               study = study + 60;
             }
-
-            incButtonPrevPress = incButtonCurrPress;
           }
 
-          // check if button input is valid
-          decButtonCurrPress = millis();
-
-          // current button press must be 'debounceDelay' ms after previous button press
-          if (decButtonCurrPress - decButtonPrevPress > debounceDelay) {
-            if (digitalRead(decButtonPin) == HIGH && study > 0) {
+          if (digitalRead(decButtonPin) == HIGH) {
+            if (isValidPress(decButtonCurrPress, decButtonPrevPress) && study > 0) {
               study = study - 60;
             }
-
-            decButtonPrevPress = decButtonCurrPress;
           }
 
           // update timer 
           studyTimer = study;
 
           break;
+        // Update short break time
         case 1:
-          // check if button input is valid
-          incButtonCurrPress = millis();
-
-          // current button press must be 'debounceDelay' ms after previous button press
-          if (incButtonCurrPress - incButtonPrevPress > debounceDelay) {
-            if (digitalRead(incButtonPin) == HIGH && shortBreak < 3600) {
+          // Increment or decrement initial study timer values
+          if (digitalRead(incButtonPin) == HIGH) {
+            if (isValidPress(incButtonCurrPress, incButtonPrevPress) && shortBreak < 3600) {
               shortBreak = shortBreak + 60;
             }
-
-            incButtonPrevPress = incButtonCurrPress;
           }
 
-          // check if button input is valid
-          decButtonCurrPress = millis();
-
-          // current button press must be 'debounceDelay' ms after previous button press
-          if (decButtonCurrPress - decButtonPrevPress > debounceDelay) {
-            if (digitalRead(decButtonPin) == HIGH && shortBreak > 0) {
+          if (digitalRead(decButtonPin) == HIGH) {
+            if (isValidPress(decButtonCurrPress, decButtonPrevPress) && shortBreak > 0) {
               shortBreak = shortBreak - 60;
             }
-
-            decButtonPrevPress = decButtonCurrPress;
           }
 
           // update timer 
           shortBreakTimer = shortBreak;
 
           break;
-        case 2:
-          // check if button input is valid
-          incButtonCurrPress = millis();
 
-          // current button press must be 'debounceDelay' ms after previous button press
-          if (incButtonCurrPress - incButtonPrevPress > debounceDelay) {
-            if (digitalRead(incButtonPin) == HIGH && longBreak < 3600) {
+        // update long break time
+        case 2:
+          // Increment or decrement initial study timer values
+          if (digitalRead(incButtonPin) == HIGH) {
+            if (isValidPress(incButtonCurrPress, incButtonPrevPress) && longBreak < 3600) {
               longBreak = longBreak + 60;
             }
-
-            incButtonPrevPress = incButtonCurrPress;
           }
 
-          // check if button input is valid
-          decButtonCurrPress = millis();
-
-          // current button press must be 'debounceDelay' ms after previous button press
-          if (decButtonCurrPress - decButtonPrevPress > debounceDelay) {
-            if (digitalRead(decButtonPin) == HIGH && longBreak > 0) {
+          if (digitalRead(decButtonPin) == HIGH) {
+            if (isValidPress(decButtonCurrPress, decButtonPrevPress) && longBreak > 0) {
               longBreak = longBreak - 60;
             }
-
-            decButtonPrevPress = decButtonCurrPress;
           }
 
           // update timer 
           longBreakTimer = longBreak;
 
           break;
-        case 3:
-          // check if button input is valid
-          incButtonCurrPress = millis();
 
-          // current button press must be 'debounceDelay' ms after previous button press
-          if (incButtonCurrPress - incButtonPrevPress > debounceDelay) {
-            // update interval
-            if (digitalRead(incButtonPin) == HIGH) {
+        // Update interval for long breaks
+        case 3:
+          // Increment or decrement initial interval value
+          if (digitalRead(incButtonPin) == HIGH) {
+            if (isValidPress(incButtonCurrPress, incButtonPrevPress)) {
               interval++;
             }
-
-            incButtonPrevPress = incButtonCurrPress;
           }
 
-          // check if button input is valid
-          decButtonCurrPress = millis();
-
-          // current button press must be 'debounceDelay' ms after previous button press
-          if (decButtonCurrPress - decButtonPrevPress > debounceDelay) {
-            // update interval
-            if (digitalRead(decButtonPin) == HIGH && interval > 0) {
+          if (digitalRead(decButtonPin) == HIGH) {
+            if (isValidPress(decButtonCurrPress, decButtonPrevPress)) {
               interval--;
             }
-            
-            decButtonPrevPress = decButtonCurrPress;
           }
+
           break;
         default:
-          
+          // idk what to put here
           break;
       }
       break;
@@ -702,4 +653,19 @@ void displayMenu() {
       oled.display();
       break;
   }
+}
+
+bool isValidPress(unsigned long &buttonCurrPress, unsigned long &buttonPrevPress) {
+  // check if button input is valid
+  buttonCurrPress = millis();
+
+  // current button press must be 'debounceDelay' ms after previous button press
+  if (buttonCurrPress - buttonPrevPress > debounceDelay) {
+    // update previous press time
+    buttonPrevPress = buttonCurrPress;
+
+    return true;
+  }
+
+  return false;
 }
