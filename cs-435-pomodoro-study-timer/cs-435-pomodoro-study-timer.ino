@@ -395,7 +395,6 @@ void loop() {
           shortBreakTimer = shortBreak;
 
           break;
-
         // update long break time
         case 2:
           // Increment or decrement initial study timer values
@@ -415,7 +414,6 @@ void loop() {
           longBreakTimer = longBreak;
 
           break;
-
         // Update interval for long breaks
         case 3:
           // Increment or decrement initial interval value
