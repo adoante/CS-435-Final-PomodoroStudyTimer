@@ -1,10 +1,10 @@
-#include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include "Wire.h"
 
 // Reset pin # (or -1 if sharing Arduino reset pin), required to be set
 #define OLED_RESET     -1
 #define OLED_Address 0x3C
+Adafruit_SSD1306 oled(1);
 
 // Multiplexer address
 #define TCAADDR 0x70
@@ -14,9 +14,6 @@
 #define SCREEN_HEIGHT 64
 
 // Variables
-
-// display name
-Adafruit_SSD1306 oled(1);
 
 // buzzer pins
 const int buzzerPin = 8;
@@ -53,6 +50,12 @@ volatile int shortBreak = 60;
 volatile int longBreak = 60;
 volatile int interval = 4;
 
+// menu (default) = -1, study = 0, break = 1, long break = 2
+volatile int timer = -1;
+
+// welcome (default) = -1, study = 0, break = 1, long break = 3
+volatile int menu = -1;
+
 // subtracted from and reset
 int studyTimer = study;
 int shortBreakTimer = shortBreak;
@@ -66,17 +69,9 @@ int studyCounter = 0;
 int shortBreakCounter = 0;
 int longBreakCounter = 0;
 
-// menu (default) = -1, study = 0, break = 1, long break = 2
-volatile int timer = -1;
-
-// welcome (default) = -1, study = 0, break = 1, long break = 3
-volatile int menu = -1;
-
 // setup - runs once
 void setup() {
-  // print to serial monitor
-  Serial.begin(9600);
-
+  
   // interrupt button setup
   pinMode(menuButtonPin, INPUT);
   pinMode(startStopButtonPin, INPUT);
@@ -444,6 +439,7 @@ void loop() {
 void tcaselect(uint8_t i) {
   if (i > 7) return;
   Wire.beginTransmission(TCAADDR);
+  // 1 << 2 = 0000 0100 etc. 
   Wire.write(1 << i);
   Wire.endTransmission(); 
 }
