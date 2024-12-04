@@ -16,7 +16,7 @@ Adafruit_SSD1306 oled(1);
 // Variables
 
 // buzzer pins
-const int buzzerPin = 8;
+const int buzzerPin = 6;
 
 // button pins
 const int menuButtonPin = 2;
@@ -40,14 +40,14 @@ unsigned long decButtonCurrPress = 0;
 unsigned long debounceDelay = 25;
 
 // led pins
-const int redLedPin = 7;
-const int greenLedPin = 6;
-const int yellowLedPin = 5;
+const int redLedPin = 9;
+const int greenLedPin = 8;
+const int yellowLedPin = 7;
 
 // Adjustable by user
-volatile int study = 60;
-volatile int shortBreak = 60;
-volatile int longBreak = 60;
+volatile int study = 0;
+volatile int shortBreak = 0;
+volatile int longBreak = 0;
 volatile int interval = 4;
 
 // menu (default) = -1, study = 0, break = 1, long break = 2
