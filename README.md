@@ -80,10 +80,9 @@ the muliple screens.
 
 ### Hardware setup
 
-<div style="position: relative; width: 100%; padding-top: calc(max(56.25%, 400px));">
-  <iframe src="https://app.cirkitdesigner.com/project/ecc592c6-a3d2-43bf-b61b-407e2a50ae3d?view=interactive_preview" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"></iframe>
-</div>
-<!--Please include the following link, which help us continue to improve and support the embed, making it a valuable tool for your audience.--> <p style= "margin-top: 5px;" >Edit this project interactively in <a href="https://app.cirkitdesigner.com/project/ecc592c6-a3d2-43bf-b61b-407e2a50ae3d" target = "_blank">Cirkit Designer</a>.</p>
+[Interactive Link on Cirkit Designer](https://app.cirkitdesigner.com/project/ecc592c6-a3d2-43bf-b61b-407e2a50ae3d) 
+
+![circuit design](./final-cirkit-design.png)
 
 ### Implementation of the code
 
