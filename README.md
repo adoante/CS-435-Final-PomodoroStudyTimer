@@ -86,13 +86,22 @@ the muliple screens.
 
 ### Implementation of the code
 
-## Experimental results
+OH god this one is gonna be long, maybe, idk.
 
 ## Lessons learned
-### External learning resources used to complete project
-### Challenges 
+
+### Challenges
+
+
+
 ### Future work and desirable changes
+
+
 
 ## Summary
 
+
+
 ## Video Demo
+
+[Pomodoro Study Timer Time Lapse](https://youtu.be/8dqkHUR8TN0)
