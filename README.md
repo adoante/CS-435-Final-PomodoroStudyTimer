@@ -92,15 +92,22 @@ OH god this one is gonna be long, maybe, idk.
 
 ### Challenges
 
-
+**TO DO**
+- Code challenges
+- Hardware challenges
 
 ### Future work and desirable changes
 
-
+**TO DO**
+- RTC module
+- Upgrade to IoT
+- Weekly email summary/stats
+- Pretty case for it all
+- Shrink Hardware size
 
 ## Summary
 
-
+**TO DO**
 
 ## Video Demo
 
