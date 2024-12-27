@@ -92,7 +92,13 @@ OH god this one is gonna be long, maybe, idk.
 
 ### Challenges
 - Code challenges
-    -
+    - The code isn't pretty. I was pressed on time and whatever worked was good
+	enough. The code is in need of a complete rewrite. This was, I think, in my
+	entire coding history the first time a switch-statement actually made sense.
+	Overall, the most challenging part of the code was implementing the timer.
+	Currently, it is less than accurate with 1 tick of the timer equal to more
+	than 1 second.
+	
 - Hardware challenges
     - Extremely straightforward. This was definitely the easiest part of the 
 	 whole project. No kidding. At its current stage, arranging hardware on a 
