@@ -98,7 +98,7 @@ OH god this one is gonna be long, maybe, idk.
 	Overall, the most challenging part of the code was implementing the timer.
 	Currently, it is less than accurate with 1 tick of the timer equal to more
 	than 1 second.
-	
+
 - Hardware challenges
     - Extremely straightforward. This was definitely the easiest part of the 
 	 whole project. No kidding. At its current stage, arranging hardware on a 
@@ -108,10 +108,21 @@ OH god this one is gonna be long, maybe, idk.
 
 **TO DO**
 - RTC module
+	- I believe that a Real Time Clock Module would improve the timers accuracy
 - Upgrade to IoT
+	- Internet all the thing!
+- Web interface
+	- It would be neat to have a web interface for user customization and ease
+	of use (timer values). Of course this should not subtract from the fact
+	that this is a physical device.
 - Weekly email summary/stats
+	- Stats are, imo, always useful and fun to display. 
 - Pretty case for it all
+	- Designing a 3D printable case would be nice (considering all the exposed
+	wiring)
 - Shrink Hardware size
+	- Designing a PCB and using SMD soldering would be very intresting and help
+	with bring the device with you.
 
 ## Summary
 
