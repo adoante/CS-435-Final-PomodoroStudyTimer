@@ -92,9 +92,9 @@ OH god this one is gonna be long, maybe, idk.
 
 ### Challenges
 - Code challenges
-	-
+    -
 - Hardware challenges
-	-
+    -
 
 ### Future work and desirable changes
 
