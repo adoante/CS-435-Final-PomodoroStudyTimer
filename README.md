@@ -86,7 +86,7 @@ the muliple screens.
 
 ### Implementation of the code
 
-**TO DO**
+**TO DO:** <br>
 OH god this one is gonna be long, maybe, idk.
 
 ## Lessons learned
