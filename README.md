@@ -91,10 +91,10 @@ OH god this one is gonna be long, maybe, idk.
 ## Lessons learned
 
 ### Challenges
-
-**TO DO**
 - Code challenges
+	-
 - Hardware challenges
+	-
 
 ### Future work and desirable changes
 
