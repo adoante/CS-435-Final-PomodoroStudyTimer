@@ -94,7 +94,9 @@ OH god this one is gonna be long, maybe, idk.
 - Code challenges
     -
 - Hardware challenges
-    -
+    - Extremely straightforward. This was definitely the easiest part of the 
+	 whole project. No kidding. At its current stage, arranging hardware on a 
+	 a breadboard with wires is simple. Especially with the circuit design.
 
 ### Future work and desirable changes
 
