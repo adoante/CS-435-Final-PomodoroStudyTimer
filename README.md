@@ -86,6 +86,7 @@ the muliple screens.
 
 ### Implementation of the code
 
+**TO DO**
 OH god this one is gonna be long, maybe, idk.
 
 ## Lessons learned
@@ -98,15 +99,12 @@ OH god this one is gonna be long, maybe, idk.
 	Overall, the most challenging part of the code was implementing the timer.
 	Currently, it is less than accurate with 1 tick of the timer equal to more
 	than 1 second.
-
 - Hardware challenges
     - Extremely straightforward. This was definitely the easiest part of the 
 	 whole project. No kidding. At its current stage, arranging hardware on a 
 	 a breadboard with wires is simple. Especially with the circuit design.
 
 ### Future work and desirable changes
-
-**TO DO**
 - RTC module
 	- I believe that a Real Time Clock Module would improve the timers accuracy
 - Upgrade to IoT
@@ -126,8 +124,27 @@ OH god this one is gonna be long, maybe, idk.
 
 ## Summary
 
-**TO DO**
+The Pomodoro Study Timer project is a customizable embedded system designed to
+improve study efficiency by alternating study sessions with breaks. It uses an 
+Arduino UNO, multiple OLED displays, LEDs, a buzzer, and push buttons to create 
+an interactive and user-friendly experience. The project is different from 
+similar designs by improving display readability, incorporating button-based 
+timer adjustments, and adding auditory and visual feedback. Challenges like 
+button debounce and timer accuracy were resolved through custom implementations.
+The project had successful functionality with minor timing deviations. I learned
+valuable lessons about project management, Arduino programming, and hardware
+design. Future improvements include adding real-time clock module, dynamic timer
+adjustments and session tracking with reports via an ESP32 module. 
+(Can you tell I used a.i. for this? :-D)
 
 ## Video Demo
 
 [Pomodoro Study Timer Time Lapse](https://youtu.be/8dqkHUR8TN0)
+
+## Datasheets
+
+- [Arduino UNO](https://docs.arduino.cc/resources/datasheets/A000066-datasheet.pdf)
+
+- [SD1306 I2C OLED Display 128x64](https://cdn-shop.adafruit.com/datasheets/SSD1306.pdf)
+
+- [TCA9548A I2C Multiplexer](https://cdn-shop.adafruit.com/datasheets/tca9548a.pdf)
