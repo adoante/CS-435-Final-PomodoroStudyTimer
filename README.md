@@ -5,7 +5,7 @@
 
 A Big thank you the developer of [Pomofocus](https://pomofocus.io/). In my
 opinion is the most polished, convenient and pleasing implementation. The 
-insporation the my attempt at a hardware based implementation of the Pomodoro 
+inspiration the my attempt at a hardware based implementation of the Pomodoro 
 Technique. It was especially helpful while I was using it for this project.
 
 The purpose of the project was to design, build, and program an embedded system 
@@ -18,14 +18,19 @@ a huge help, in both promoting pure focus time and curving mental fatigue.
 
 ### Background
 
-> The Pomodoro Technique is a time management method developed by Francesco Cirillo in the late 1980s. It uses a kitchen timer to break work into intervals, typically 25 minutes in length, separated by short breaks. Each interval is known as a pomodoro, from the Italian word for tomato, after the tomato-shaped kitchen timer Cirillo used as a university student. -- [Wikipedia](https://en.wikipedia.org/wiki/Pomodoro_Technique)
+> The Pomodoro Technique is a time management method developed by Francesco 
+> Cirillo in the late 1980s. It uses a kitchen timer to break work into
+> intervals, typically 25 minutes in length, separated by short breaks. 
+> Each interval is known as a pomodoro, from the Italian word for tomato, after 
+> the tomato-shaped kitchen timer Cirillo used as a university student. 
+> -- [Wikipedia](https://en.wikipedia.org/wiki/Pomodoro_Technique)
 
-It is an extreamly useful tool for studying and highly recommened for the
+It is an extremely useful tool for studying and highly recommend for the
 "get it done the day before" procrastinator (i.e. myself).
 
 ### Reference material
 
-Of cource I am not the first to think of making a hardware based Pomodoro Timer.
+Of course I am not the first to think of making a hardware based Pomodoro Timer.
 Someone has done it before and someone will do it again. As research, a simple 
 google search returns [Make a Pomodoro Study Clock](https://www.sciencebuddies.org/science-fair-projects/project-ideas/Elec_p099/electricity-electronics/pomodoro-study-clock).
 It's difficulty is marked as *Intermediate Hard*. For the average CompSci
@@ -39,8 +44,8 @@ displaying that timer. I suppose you need a computer to run it all as well.
 Personally, I like an obvious visual change and auditory cue so LEDs and a 
 buzzer would work well.
 
-Aurdino has become ubiquitous in the embedded systems space and are great for 
-protoyping, ease of development and community support. I decided on an Aurdino 
+Arduino has become ubiquitous in the embedded systems space and are great for 
+prototyping, ease of development and community support. I decided on an Arduino 
 UNO to run it all. 
 
 Your standard 16x2 Character LCD display is one way of displaying the timer but 
@@ -66,7 +71,7 @@ decrement values. Three screens to display the timer, study stats, and menu.
 (Although, I do have 2 more screens) Two screens for flavor text. A buzzer to 
 indicate when the timer has completed and a red, green, and yellow LED to 
 indicate which timer is currently counting down. Finally, the multiplexer for 
-the muliple screens.
+the multiple screens.
 
 ## Implementation details
 
@@ -119,7 +124,7 @@ OH god this one is gonna be long, maybe, idk.
 	- Designing a 3D printable case would be nice (considering all the exposed
 	wiring)
 - Shrink Hardware size
-	- Designing a PCB and using SMD soldering would be very intresting and help
+	- Designing a PCB and using SMD soldering would be very interesting and help
 	with bring the device with you.
 
 ## Summary
