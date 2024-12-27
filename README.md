@@ -137,6 +137,8 @@ design. Future improvements include adding real-time clock module, dynamic timer
 adjustments and session tracking with reports via an ESP32 module. 
 (Can you tell I used a.i. for this? :-D)
 
+![completed pomodoro study timer](./physical_pomodoro_study_timer.jpg)
+
 ## Video Demo
 
 [Pomodoro Study Timer Time Lapse](https://youtu.be/8dqkHUR8TN0)
