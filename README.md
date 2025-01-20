@@ -1,6 +1,3 @@
-# Pomodoro Study Timer
-<img src="./physical_pomodoro_study_timer.jpg" width="500">
-
 ## Preface
 
 A Big thank you the developer of [Pomofocus](https://pomofocus.io/). In my
@@ -87,7 +84,7 @@ the multiple screens.
 
 [Interactive Link on Cirkit Designer](https://app.cirkitdesigner.com/project/ecc592c6-a3d2-43bf-b61b-407e2a50ae3d) 
 
-![circuit design](./final-cirkit-design.png)
+<img src="./final-cirkit-design.png" width="500">
 
 ## Lessons learned
 
@@ -135,6 +132,8 @@ The project had successful functionality with minor timing deviations. I learned
 valuable lessons about project management, Arduino programming, and hardware
 design. Future improvements include adding real-time clock module, dynamic timer
 adjustments and session tracking with reports via an ESP32 module. 
+
+<img src="./physical_pomodoro_study_timer.jpg" width="500">
 
 ## Video Demo
 
