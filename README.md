@@ -1,5 +1,5 @@
 # Pomodoro Study Timer
-### Embedded Systems Project
+<img src="./physical_pomodoro_study_timer.jpg" width="500">
 
 ## Preface
 
@@ -89,11 +89,6 @@ the multiple screens.
 
 ![circuit design](./final-cirkit-design.png)
 
-### Implementation of the code
-
-**TO DO:** <br>
-OH god this one is gonna be long, maybe, idk.
-
 ## Lessons learned
 
 ### Challenges
@@ -140,9 +135,6 @@ The project had successful functionality with minor timing deviations. I learned
 valuable lessons about project management, Arduino programming, and hardware
 design. Future improvements include adding real-time clock module, dynamic timer
 adjustments and session tracking with reports via an ESP32 module. 
-(Can you tell I used a.i. for this? :-D)
-
-![completed pomodoro study timer](./physical_pomodoro_study_timer.jpg)
 
 ## Video Demo
 
